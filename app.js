@@ -14,9 +14,12 @@ app
   .set('app', app)
 
   // Middlewares
+  /*.use(cors())
+  .use(multer)*/
   .use(bodyParser.json())
   .use(bodyParser.urlencoded({ extended: false }))
   // Rutas
-  .use(routes);
+  .use(routes)
+  .get('/', (req, res) => res.send('entry'))
 
 module.exports = app;
