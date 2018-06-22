@@ -10,7 +10,7 @@ const User = sequelize.define('user', {
   apellidos: { type: Sequelize.STRING(30), allowNull: false },
   telefono: Sequelize.STRING(9),
   celular: Sequelize.STRING(9),
-  numero_doc: { type: Sequelize.STRING(15), allowNull: false },
+  numero_doc: { type: Sequelize.STRING(15), allowNull: false, unique: true },
   email: { type: Sequelize.STRING(50), allowNull: false, unique: true },
   genero: { type: Sequelize.STRING(1), allowNull: false },
   foto: { type: Sequelize.STRING(256), allowNull: false },

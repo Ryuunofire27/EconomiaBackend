@@ -6,7 +6,8 @@ exports.getAll = (req, res) => {
     search: req.query.search || '',
     limit: req.query.limit || 10,
     page: req.query.page || 1,
-    profile: req.query.profile 
+    profile: req.query.profile,
+    user_type: req.query.user || 1
   }
   um.getAll(search, (err, users) => {
     if(err) return res.status(500).send({ err: 'Error en la peticion' });

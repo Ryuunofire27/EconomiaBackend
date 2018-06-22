@@ -15,20 +15,35 @@ exports.getAll = (search, cb) => {
       [Op.like]: '%' + search.search + '%'
     }
   }
-  
-  Investigador
-    .findAll({
-      where,
-      limit: parseInt(search.limit),
-      offset: search.limit * (search.page - 1),
-      include: [User]
-    })
-    .then((usersFound) => {
-      cb(null, usersFound);
-    })
-    .catch((err) => {
-      cb(err);
-    })
+  if(search.user_type === 1){
+    User
+      .findAll({
+        where,
+        limit: parseInt(search.limit),
+        offset: search.limit * (search.page - 1)
+      })
+      .then((usersFound) => {
+        console.log(usersFound);
+        cb(null, usersFound);
+      })
+      .catch((err) => {
+        cb(err);
+      })
+  }else{
+    Investigador
+      .findAll({
+        where,
+        limit: parseInt(search.limit),
+        offset: search.limit * (search.page - 1),
+        include: [User]
+      })
+      .then((usersFound) => {
+        cb(null, usersFound);
+      })
+      .catch((err) => {
+        cb(err);
+      })
+  }
 };
 
 exports.register = (data, cb) => {

@@ -5,7 +5,7 @@ const Investigador = require('./Investigador');
 
 const Pais = sequelize.define('pais', {
   id_pais: { type: Sequelize.INTEGER, allowNull: false, autoIncrement: true, primaryKey: true },
-  nombre_pais: { type: Sequelize.STRING(45), allowNull: false } 
+  nombre_pais: { type: Sequelize.STRING(45), allowNull: false, unique: true } 
 }, {
   tableName: 'PAISES'
 });
