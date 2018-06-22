@@ -1,5 +1,6 @@
 const User = require('../schemas/User');
 const Investigador = require('../schemas/Investigador');
+const probarModelo = require('../schemas/SubirModelos');
 const { Op } = require('sequelize');
 
 exports.getAll = (search, cb) => {
