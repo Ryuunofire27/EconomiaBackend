@@ -1,8 +1,8 @@
 module.exports = {
-  database: 'SistemaEncuestas',
+  database: 'sistemaEncuestas',
   username: 'root',
-  password: 'ayasetan27',
-  port: '3306',
+  password: '',
+  port: 'port',
   host: 'localhost',
   dialect: 'mysql'
 };
