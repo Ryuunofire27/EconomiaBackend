@@ -1,18 +1,18 @@
 const bcrypt = require('bcrypt-nodejs');
 
-exports.generatePassword = (nmrCharacters) => {
+const generatePassword = (nmrCharacters) => {
   const characters = "abcdefghijkmnpqrtuvwxyzABCDEFGHIJKLMNPQRTUVWXYZ012346789!\"#$%&\'()+,-./:;<=>?@[]^_`{|}*~/";
   let password = '';
-  for(let i=0; i < nmrCharacter; i++){
+  for(let i=0; i < nmrCharacters; i++){
     password += characters[Math.floor(Math.random() * characters.length)];
   }
   return password;
 }
 
-exports.cryptPassword = (password, cb) => {
+const cryptPassword = (password, cb) => {
   bcrypt.genSalt(10, (err, salt) => {
     if (err) return cb(err);
-    bcrypt.hash(password, salt, (err, hash) => {
+    bcrypt.hash(password, salt, null, (err, hash) => {
       return cb(err, hash);
     });
   });
@@ -24,3 +24,7 @@ exports.comparePassword = (password, cryptedHashPassword, cb) => {
   });
 }
 
+cryptPassword(generatePassword(60), (err, hash) => {
+  console.log(hash);
+  console.log(hash.length);
+})

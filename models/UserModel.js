@@ -1,6 +1,7 @@
 const User = require('../schemas/User');
 const Investigador = require('../schemas/Investigador');
 const { Op } = require('sequelize');
+const nodemailer = require('nodemailer');
 
 exports.getAll = (search, cb) => {
   const where = {};
@@ -30,7 +31,21 @@ exports.getAll = (search, cb) => {
 };
 
 exports.register = (data, cb) => {
-
+  const transporter = nodemailer.createTransport({
+    service: 'SendGrid',
+    auth: {
+      user: process.env.SENDGRID_USER,
+      pass: process.env.SENDGRID_PASSWORD
+    }
+  });
+  const admiMail = 'cdvillagomez27@gmail.com';
+  const mailOptions = {
+    to: admiMail,
+    from: admiMail,
+    subject: 'Activar cuenta Startruck',
+    text: `
+    El usuario ${user.rucData.ruc.split(' - ')[1]} con ruc ${user.ruc} acaba de registrarse y requiere activacion`
+  };
 }
 
 exports.login = (user, cb) => {
