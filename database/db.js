@@ -2,7 +2,9 @@ const Sequelize = require('sequelize');
 const config = require('../config/db')
 
 const sequelize = new Sequelize(config.database, config.username, config.password, {
-  dialect: config.dialect, define: { timestamps: false }
+  host: config.host,
+  dialect: config.dialect, define: { timestamps: false },
+  port: config.port
 });
 
 sequelize
