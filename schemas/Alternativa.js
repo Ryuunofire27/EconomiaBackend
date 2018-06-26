@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize');
 const sequelize = require('../database/db');
-const Pregunta_alternativa = require('./Pregunta_alternativa');
-const Respuesta = require('./Respuesta');
+
+
 
 const Alternativa = sequelize.define('alternativa', {
   id_alternativa: { type: Sequelize.INTEGER, allowNull: false, autoIncrement: true, primaryKey: true },
@@ -10,11 +10,11 @@ const Alternativa = sequelize.define('alternativa', {
   tableName: 'ALTERNATIVAS'
 });
 
-Alternativa.hasMany(Pregunta_alternativa, {foreignKey: 'id_alternativa'});
-Pregunta_alternativa.belongsTo(Alternativa, { foreignKey: 'id_alternativa'});
+// Alternativa.hasMany(Pregunta_alternativa, {foreignKey: 'id_alternativa'});
+// Pregunta_alternativa.belongsTo(Alternativa, { foreignKey: 'id_alternativa'});
 
-Alternativa.hasMany(Respuesta, {foreignKey: 'id_alternativa'});
-Respuesta.belongsTo(Alternativa, { foreignKey: 'id_alternativa'});
+// Alternativa.hasMany(Respuesta, {foreignKey: 'id_alternativa'});
+// Respuesta.belongsTo(Alternativa, { foreignKey: 'id_alternativa'});
 
 
 module.exports = Alternativa;

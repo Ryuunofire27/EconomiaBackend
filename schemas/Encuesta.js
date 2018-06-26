@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize');
 const sequelize = require('../database/db');
+const Investigador = require('./Investigador');
 
 const Encuesta = sequelize.define('encuesta', {
   id_encuesta: { type: Sequelize.INTEGER, allowNull: false, autoIncrement: true, primaryKey: true },
@@ -11,5 +12,7 @@ const Encuesta = sequelize.define('encuesta', {
 }, {
   tableName: 'ENCUESTAS'
 });
+
+Encuesta.belongsTo(Investigador, { foreignKey: 'id_investigador' });
 
 module.exports = Encuesta;

@@ -1,6 +1,7 @@
 const Sequelize = require('sequelize');
 const sequelize = require('../database/db');
-const Encuestado = require('./Encuestado');
+
+const Pais = require('./Pais');
 
 const Zona = sequelize.define('zona', {
   cod_zona: { type: Sequelize.INTEGER, allowNull: false, autoIncrement: true, primaryKey: true },
@@ -10,7 +11,9 @@ const Zona = sequelize.define('zona', {
   tableName: 'ZONAS'
 });
 
-Zona.hasMany(Encuestado, {foreignKey: 'cod_zona'});
-Encuestado.belongsTo(Zona, { foreignKey: 'cod_zona' });
+// Zona.hasMany(Encuestado, {foreignKey: 'cod_zona'});
+// Encuestado.belongsTo(Zona, { foreignKey: 'cod_zona' });
+
+Zona.belongsTo(Pais, { foreignKey: 'id_pais' });
 
 module.exports = Zona;

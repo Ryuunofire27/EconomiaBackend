@@ -46,6 +46,18 @@ exports.getAll = (search, cb) => {
   }
 };
 
+exports.get = (data,cb) => {
+    let error;
+    User.findById(data).then(objeto => {
+      if(objeto!=null){
+        console.log("Se ha encontrado la zona " + objeto.nombres);
+      }else{
+        error = "ERROR : La zona buscada no existe.";
+      }
+      cb(error, objeto);
+    });
+}
+
 exports.register = (data, cb) => {
   const transporter = nodemailer.createTransport({
     service: 'SendGrid',

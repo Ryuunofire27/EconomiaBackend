@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 const sequelize = require('../database/db');
-const Investigador = require('./Investigador');
+//const Investigador = require('./Investigador');
 
 const Tipo_documento = sequelize.define('Tipo_documento', {
   id_tipo_documento: { type: Sequelize.INTEGER, allowNull: false, autoIncrement: true, primaryKey: true },
@@ -10,7 +10,7 @@ const Tipo_documento = sequelize.define('Tipo_documento', {
   tableName: 'TIPOS_DOCUMENTO'
 });
 
-Tipo_documento.hasMany(Investigador, {foreignKey: 'id_tipo_documento'});
-Investigador.belongsTo(Tipo_documento, { foreignKey: 'id_tipo_documento' });
+//Tipo_documento.hasMany(Investigador, {foreignKey: 'id_tipo_documento'});
+//Investigador.belongsTo(Tipo_documento, { foreignKey: 'id_tipo_documento' });
 
 module.exports = Tipo_documento;

@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 const sequelize = require('../database/db');
-const Encuestado = require('./Encuestado');
+
 
 const Sector = sequelize.define('sector', {
   id_sector: { type: Sequelize.INTEGER, allowNull: false, autoIncrement: true, primaryKey: true },
@@ -10,7 +10,7 @@ const Sector = sequelize.define('sector', {
   tableName: 'SECTORES'
 });
 
-Sector.hasMany(Encuestado, {foreignKey: 'id_sector'});
-Encuestado.belongsTo(Sector, { foreignKey: 'id_sector' });
+// Sector.hasMany(Encuestado, {foreignKey: 'id_sector'});
+// Encuestado.belongsTo(Sector, { foreignKey: 'id_sector' });
 
 module.exports = Sector;
