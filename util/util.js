@@ -24,7 +24,5 @@ exports.comparePassword = (password, cryptedHashPassword, cb) => {
   });
 }
 
-cryptPassword(generatePassword(60), (err, hash) => {
-  console.log(hash);
-  console.log(hash.length);
-})
+exports.generatePassword = generatePassword;
+exports.cryptPassword = cryptPassword;

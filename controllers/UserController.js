@@ -25,7 +25,6 @@ exports.get = (req, res) => {
 
 exports.register = (req, res) => {
   const user = {
-    id_usuario: req.body.id_usuario,
     codigo: req.body.codigo,
     nombres: req.body.nombres,
     apellidos: req.body.apellidos,
@@ -39,12 +38,12 @@ exports.register = (req, res) => {
   let investigador = null;
   if(user.id_perfil == 2){
     investigador = {
-      tipo_doc: req.body.tipo_doc,
-      codigo_sunedu: req.body.codigo_sunedu,
-      nacionalidad: req.body.nacionalidad,
-      universidad: req.body.universidad,
+      id_tipo_documento: req.body.tipo_doc,
+      id_pais: req.body.pais,
+      universidad: req.body.universidad
     };
-    if(!req.files.foto) return res.status(401).send({ err: 'Es necesario la foto del investigador' });
+    if(!req.files.foto) return 
+    res.status(401).send({ err: 'Es necesario la foto del investigador' });
     user.foto = req.files.foto;
   }else{
     user.foto = req.files && req.files.foto || 'default';
@@ -52,10 +51,12 @@ exports.register = (req, res) => {
   user.nombres = user.nombres.toUpperCase();
   user.apellidos = user.apellidos.toUpperCase();
   user.genero = user.genero.toUpperCase();
-  util.cryptPassword(util.generatePassword(16), (err, cryptedPassword) => {
-    user.password = cryptedPassword;
-    um.register({ usuario, investigador }, (err, user) => {
+  const generatedPassword = util.generatePassword(16);
+  util.cryptPassword(generatedPassword, (err, cryptedPassword) => {
+    user.contrasenia = cryptedPassword;
+    um.register({ user, investigador }, (err, user) => {
       if(err) return res.status(500).send(err);
+      user.contrasenia = generatedPassword;
       res.send(user);
     });
   });
@@ -81,11 +82,11 @@ exports.login = (req, res) => {
   };
   um.login(user, (err, data) => {
     if (err) return res.status(500).send(err);
-    if (!data.user) return res.send(data);
-    util.comparePassword(user.password, data.user.contrasenia, (err, isMatch) => {
+    if (data.msg) return res.send(data);
+    util.comparePassword(user.password, data.contrasenia, (err, isMatch) => {
       if(err) return res.status(500).send(err);
-      if(isMatch) return res.send(data.user);
-      res.send({ msg: 'Contraseña equivocada' })
+      if(isMatch) return res.send(data);
+      res.send({ msg: 'Contraseña equivocada' });
     });
   });
 }

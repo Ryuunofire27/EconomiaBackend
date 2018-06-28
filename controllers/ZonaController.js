@@ -10,13 +10,13 @@ exports.getAll = (req, res) => {
 exports.get = (req, res) => {
   const cod_zona = req.params.cod_zona;
   zm.get(cod_zona, (err, zona) => {
-    if(err) return res.status(500).send({ err: 'Error en la peticion' });
+    if(err) return res.status(500).send(err);
     res.send(zona);
   });
 }
 
 exports.insert = (req, res) => {
- if (!req.body.zona) return res.status(401).send({ err: 'Falta llenar campos'});
+ if (!req.body.ciudad) return res.status(401).send({ err: 'Falta llenar campos'});
   const zona = {
     ciudad: req.body.ciudad.toUpperCase(),
     estado_provincia: req.body.estado_provincia,

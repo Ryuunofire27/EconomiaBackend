@@ -9,24 +9,22 @@ exports.getAll = (cb) => {
     .catch(err => cb(err));
 };
 
-exports.get = (data,cb) => {
-    let error;
-    console.log("data es "+data);
-    Zona.findById(data).then(objeto => {
-      if(objeto!=null){
-        console.log("Se ha encontrado la zona " + objeto.ciudad);
-      }else{
-        error = "ERROR : La zona buscada no existe.";
-      }
-      cb(error, objeto);
-    });
+exports.get = (ids,cb) => {
+    Zona
+      .findById(id)
+      .then(objeto => {
+        if(objeto) return cb(null, objeto);
+        const error = { err : "La zona buscada no existe." };
+        cb(error);
+      })
+      .catch(err => cb(err));
 }
 
 exports.insert = (zona, cb) => {
   const newZona = Zona.build(zona);
   newZona
     .save()
-    .then((zonaSaved) => cb(zonaSaved))
+    .then((zonaSaved) => cb(null, zonaSaved))
     .catch(err => cb(err));
 }
 
@@ -34,11 +32,14 @@ exports.delete = (id, cb) => {
   Zona
     .findById(id)
     .then((zonaFound) => {
-      return zonaFound.destroy();
-    })
-    .then((count) => {
-      console.log(count);
-      cb(null);
+      if (!zonaFound) return cb({ err: 'La zona a eliminar no existe' });
+      zonaFound
+        .destroy()
+        .then((count) => {
+          if (count === 0) return cb({ err: 'No se ha podido eliminar la zona' }) ;
+          cb(null, { res: 'Zona eliminada exitosamente' });
+        })
+        .catch(err => cb(err));
     })
     .catch(err => cb(err));
 }

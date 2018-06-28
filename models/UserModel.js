@@ -59,7 +59,7 @@ exports.get = (data,cb) => {
 }
 
 exports.register = (data, cb) => {
-  const transporter = nodemailer.createTransport({
+  /*const transporter = nodemailer.createTransport({
     service: 'SendGrid',
     auth: {
       user: process.env.SENDGRID_USER,
@@ -73,17 +73,35 @@ exports.register = (data, cb) => {
     subject: 'Activar cuenta Startruck',
     text: `
     El usuario ${user.rucData.ruc.split(' - ')[1]} con ruc ${user.ruc} acaba de registrarse y requiere activacion`
-  };
+  };*/
+  const { user, investigador } = data;
+  console.log(user);
+  const newUser = new User(user);
+  newUser
+    .save()
+    .then((userSaved) => {
+      if(userSaved.id_perfil == 2){
+        investigador.id_usuario = userSaved.id_usuario;
+        const newInvestigador = new Investigador(investigador);
+        return newInvestigador
+          .save()
+          .then((investigadorSaved) => {
+            userSaved.investigador = investigadorSaved;
+            cb(null, userSaved);
+          })
+          .catch(err => cb(err));
+      }
+      cb(null, userSaved);
+    })
+    .catch(err => cb(err));
 }
 
 exports.login = (user, cb) => {
   User
     .find({ codigo: user.username })
     .then((usersFound) => {
-      if(usersFound.length == 0){
-        return cb(null, { msg: 'Usuario no registrado'});
-      }
-      return cb(null, { user: usersFound[0] });
+      if(usersFound.length === 0) return cb(null, { msg: 'Usuario no registrado'});
+      cb(null, usersFound[0]);
     })
     .catch(err => cb(err));
 }

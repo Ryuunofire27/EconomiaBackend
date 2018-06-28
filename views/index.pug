@@ -1,0 +1,23 @@
+html
+head
+  title= 'Index'
+body
+  h1  Api Rest
+  h2 rutas
+  ul
+    li
+      a(href='#User') Usuario
+  main
+    section#user 
+      h3 Usuario (Encuestador, Investigador)
+      h4 Tipo get
+      div userById : 
+          code /users/:id
+          p id: Id del usuario
+      div users :
+          code /users?search=usuario&limit=10&page=1&profile=1
+          p query params opcionales
+          p search= parte del nombre, nombre completo o apellidos del usuario a buscar
+          p limit = cantidad de usuarios a obtener
+          p page = pagina desde donde se empezara a buscar a los usuarios
+          p profile = busqueda por tipos de usuario (1: Encuestador, 2: Investigador)
