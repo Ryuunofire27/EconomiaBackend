@@ -82,8 +82,10 @@ exports.login = (req, res) => {
   um.login(user, (err, data) => {
     if (err) return res.status(500).send(err);
     if (data.msg) return res.send(data);
+    console.log(data.contrasenia)
     util.comparePassword(user.password, data.contrasenia, (err, isMatch) => {
       if(err) return res.status(500).send(err);
+      console.log(isMatch)
       if(isMatch) return res.send(data);
       res.send({ msg: 'Contraseña equivocada' });
     });

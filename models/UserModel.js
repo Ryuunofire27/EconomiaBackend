@@ -104,10 +104,11 @@ exports.register = (data, cb) => {
 
 exports.login = (user, cb) => {
   User
-    .find({ codigo: user.username })
-    .then((usersFound) => {
-      if(usersFound.length === 0) return cb(null, { msg: 'Usuario no registrado'});
-      cb(null, usersFound[0]);
+    .findOne({ where: { codigo: user.username } })
+    .then((userFound) => {
+      console.log(userFound);
+      if(!userFound) return cb(null, { msg: 'Usuario no registrado'});
+      cb(null, userFound);
     })
     .catch(err => cb(err));
 }
