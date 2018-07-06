@@ -16,8 +16,8 @@ body
           p id: Id del usuario
       div users :
           code /users?search=usuario&limit=10&page=1&profile=1
-          p query params opcionales
+          h5 query params opcionales
           p search= parte del nombre, nombre completo o apellidos del usuario a buscar
-          p limit = cantidad de usuarios a obtener
-          p page = pagina desde donde se empezara a buscar a los usuarios
+          p limit = cantidad de usuarios a obtener (por defecto = 10)
+          p page = pagina desde donde se empezara a buscar a los usuarios (por defecto = 1)
           p profile = busqueda por tipos de usuario (1: Encuestador, 2: Investigador)

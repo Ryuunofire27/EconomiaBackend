@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize');
 const sequelize = require('../database/db');
+const Pregunta = require('./Pregunta');
 const Encuesta = require('./Encuesta');
 
 
@@ -10,9 +11,6 @@ const Segmento = sequelize.define('segmento', {
   tableName: 'SEGMENTOS'
 });
 
-Segmento.belongsTo(Encuesta, { foreignKey: 'id_encuesta' })
-
-// Segmento.hasMany(Pregunta, {foreignKey: 'id_segmento'});
-// Pregunta.belongsTo(Segmento, { foreignKey: 'id_segmento' });
+Segmento.hasMany(Pregunta, { as: 'preguntas' ,foreignKey: 'id_segmento' });
 
 module.exports = Segmento;

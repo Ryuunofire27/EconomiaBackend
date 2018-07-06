@@ -10,7 +10,7 @@ exports.getAll = (req, res) => {
     user_type: req.query.user || 1
   }
   um.getAll(search, (err, users) => {
-    if(err) return res.status(500).send({ err: 'Error en la peticion' });
+    if(err) return res.status(500).send(err);
     res.send(users);
   });
 }
@@ -42,11 +42,10 @@ exports.register = (req, res) => {
       id_pais: req.body.pais,
       universidad: req.body.universidad
     };
-    if(!req.files.foto) return 
-    res.status(401).send({ err: 'Es necesario la foto del investigador' });
-    user.foto = req.files.foto;
+    user.foto = req.body.foto;
+    if (!req.body.foto) res.status(401).send({ err: 'El investigador requiere de una foto' })
   }else{
-    user.foto = req.files && req.files.foto || 'default';
+    user.foto = req.body.foto || '';
   }
   user.nombres = user.nombres.toUpperCase();
   user.apellidos = user.apellidos.toUpperCase();
@@ -77,7 +76,7 @@ exports.changePassword = (req, res) => {
 
 exports.login = (req, res) => {
   const user = {
-    username: req.body.username,
+    username: req.body.email,
     password: req.body.password
   };
   um.login(user, (err, data) => {

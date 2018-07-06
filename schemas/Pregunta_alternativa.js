@@ -11,8 +11,6 @@ const Pregunta_alternativa = sequelize.define('pregunta_alternativa', {
   tableName: 'PREGUNTAS_ALTERNATIVA'
 });
 
-Pregunta_alternativa.belongsTo(Pregunta, { foreignKey: 'id_pregunta'});
 
-Pregunta_alternativa.belongsTo(Alternativa, { foreignKey: 'id_alternativa'});
 
 module.exports = Pregunta_alternativa;

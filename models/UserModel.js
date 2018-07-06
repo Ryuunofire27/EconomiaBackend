@@ -5,8 +5,7 @@ const { Op } = require('sequelize');
 const nodemailer = require('nodemailer');
 
 exports.getAll = (search, cb) => {
-  const where = {};
-  if(search.profile) where.id_perfil = search.profile;
+  const where = { id_perfil: search.user_type };
   if(search.search.length !== 0){
     where.nombres = {
       [Op.like]: '%' + search.search + '%'
@@ -76,6 +75,7 @@ exports.register = (data, cb) => {
   };*/
   const { user, investigador } = data;
   console.log(user);
+  console.log(investigador);
   const newUser = new User(user);
   newUser
     .save()
@@ -89,7 +89,13 @@ exports.register = (data, cb) => {
             userSaved.investigador = investigadorSaved;
             cb(null, userSaved);
           })
-          .catch(err => cb(err));
+          .catch(err => {
+            userSaved
+              .destroy()
+              .then(() => {
+                cb(err)
+              });
+          });
       }
       cb(null, userSaved);
     })

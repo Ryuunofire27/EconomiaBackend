@@ -2,10 +2,14 @@ const route = require('express').Router();
 const ur = require('./userRoute');
 const pr = require('./paisRoute');
 const pror = require('./profileRoute');
+const er = require('./encuestaRoute');
+const tr = require('./tipoDocumentoRoute');
 
 route
-  .use('/users', ur)
+  .use('/usuarios', ur)
   .use('/paises', pr)
-  .use('/profiles', pror)
-
+  .use('/perfiles', pror)
+  .use('/encuestas', er)
+  .use('/tipodocumento', tr)
+  
 module.exports = route;
