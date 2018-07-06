@@ -7,6 +7,13 @@ exports.getAll = (req, res) => {
   });
 };
 
+exports.get = (req, res) => {
+  em.get(req.params.id, (err, encuesta) => {
+    if (err) return res.status(500).send(err);
+    res.send(encuesta);
+  });
+}
+
 exports.insert = (req, res) => {
   const { bloque_segmento } = req.body;
   const encuesta = {

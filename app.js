@@ -19,6 +19,7 @@ app
   // Middlewares
   /*.use(cors())
   .use(multer)*/
+  .use(cors())
   .use(bodyParser.json())
   .use(bodyParser.urlencoded({ extended: false }))
   // Rutas

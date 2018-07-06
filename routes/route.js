@@ -10,6 +10,6 @@ route
   .use('/paises', pr)
   .use('/perfiles', pror)
   .use('/encuestas', er)
-  .use('/tipodocumento', tr)
+  .use('/tipodocumentos', tr)
   
 module.exports = route;
