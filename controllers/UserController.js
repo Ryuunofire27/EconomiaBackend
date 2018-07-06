@@ -6,8 +6,7 @@ exports.getAll = (req, res) => {
     search: req.query.search || '',
     limit: req.query.limit || 10,
     page: req.query.page || 1,
-    profile: req.query.profile,
-    user_type: req.query.user || 1
+    user_type: req.query.user
   }
   um.getAll(search, (err, users) => {
     if(err) return res.status(500).send(err);
@@ -26,6 +25,7 @@ exports.get = (req, res) => {
 exports.register = (req, res) => {
   const user = {
     codigo: req.body.codigo,
+    contrasenia: req.body.contrasenia,
     nombres: req.body.nombres,
     apellidos: req.body.apellidos,
     telefono: req.body.telefono,
@@ -50,8 +50,9 @@ exports.register = (req, res) => {
   user.nombres = user.nombres.toUpperCase();
   user.apellidos = user.apellidos.toUpperCase();
   user.genero = user.genero.toUpperCase();
-  const generatedPassword = util.generatePassword(16);
-  util.cryptPassword(generatedPassword, (err, cryptedPassword) => {
+  //const generatedPassword = util.generatePassword(16);
+  util.cryptPassword(/*generatedPassword*/user.contrasenia, (err, cryptedPassword) => {
+    if(err) return res.status(500).send(err);
     user.contrasenia = cryptedPassword;
     um.register({ user, investigador }, (err, user) => {
       if(err) return res.status(500).send(err);
@@ -85,7 +86,6 @@ exports.login = (req, res) => {
     console.log(data.contrasenia)
     util.comparePassword(user.password, data.contrasenia, (err, isMatch) => {
       if(err) return res.status(500).send(err);
-      console.log(isMatch)
       if(isMatch) return res.send(data);
       res.send({ msg: 'Contraseña equivocada' });
     });

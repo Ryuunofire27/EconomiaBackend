@@ -5,7 +5,7 @@ const { Op } = require('sequelize');
 const nodemailer = require('nodemailer');
 
 exports.getAll = (search, cb) => {
-  const where = { id_perfil: search.user_type };
+  const where = { };
   if(search.search.length !== 0){
     where.nombres = {
       [Op.like]: '%' + search.search + '%'
@@ -14,27 +14,28 @@ exports.getAll = (search, cb) => {
       [Op.like]: '%' + search.search + '%'
     }
   }
-  if(search.user_type === 1){
-    User
-      .findAll({
-        where,
-        limit: parseInt(search.limit),
-        offset: search.limit * (search.page - 1)
-      })
-      .then((usersFound) => {
-        console.log(usersFound);
-        cb(null, usersFound);
-      })
-      .catch((err) => {
-        cb(err);
-      })
-  }else{
+  console.log(search);
+  if(search.user_type == 2){
     Investigador
       .findAll({
         where,
         limit: parseInt(search.limit),
         offset: search.limit * (search.page - 1),
         include: [User]
+      })
+      .then((usersFound) => {
+        cb(null, usersFound);
+      })
+      .catch((err) => {
+        cb(err);
+      })
+    
+  }else{
+    User
+      .findAll({
+        where,
+        limit: parseInt(search.limit),
+        offset: search.limit * (search.page - 1)
       })
       .then((usersFound) => {
         cb(null, usersFound);

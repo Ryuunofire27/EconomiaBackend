@@ -10,7 +10,7 @@ exports.getAll = (req, res) => {
 exports.insert = (req, res) => {
   if (!req.body.nombre) return res.status(401).send({ err: 'Falta llenar campos'})
   const tipoDocumento = {
-    nombre_documento: req.body.nombre.toUpperCase(),
+    nombre_documento: req.body.documento.toUpperCase(),
     descrip_documento: req.body.descripcion
   };
   tm.insert(tipoDocumento, (err, tipoDocumento) => {
