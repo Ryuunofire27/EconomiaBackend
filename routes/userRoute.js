@@ -5,7 +5,7 @@ route
   .get('/', uc.getAll)
   .get('/:id', uc.get)
   .post('/', uc.register)
-  .post('/', uc.login)
+  .post('/login', uc.login)
   
 
 module.exports = route;
