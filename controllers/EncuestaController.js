@@ -16,20 +16,20 @@ exports.get = (req, res) => {
 
 exports.insert = (req, res) => {
   const { bloque_segmento } = req.body;
-  const encuesta = {
+  const data = {};
+  data.encuesta = {
     tema_encuesta: req.body.titulo_encuesta,
     fecha_creacion: new Date(),
-    id_investigador: 1
+    id_investigador: req.body.investigador
   };
-  encuesta.segmentos = bloque_segmento.map((b) => {
+  data.segmentos = bloque_segmento.map((b) => {
     const tema_segmento = b.titulo;
     const preguntas = b.bloque_pregunta.map((p) => {
-      const id_tipo_pregunta = p.type;
-      return { id_tipo_pregunta, pregunta: p.pregunta, alternativas: p.alternativas };
+      return { nmr_pregunta: p.nmr, pregunta: p.pregunta, alternativas: p.alternativas };
     });
     return { tema_segmento, preguntas };
   });
-  em.insert(encuesta, (err, encuesta) => {
+  em.insert(data, (err, encuesta) => {
     if(err) return res.status(500).send(err);
     res.send(encuesta);
   });

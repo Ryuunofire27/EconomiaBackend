@@ -75,32 +75,62 @@ exports.register = (data, cb) => {
     El usuario ${user.rucData.ruc.split(' - ')[1]} con ruc ${user.ruc} acaba de registrarse y requiere activacion`
   };*/
   const { user, investigador } = data;
-  console.log(user);
-  console.log(investigador);
-  const newUser = new User(user);
-  newUser
-    .save()
-    .then((userSaved) => {
-      if(userSaved.id_perfil == 2){
-        investigador.id_usuario = userSaved.id_usuario;
-        const newInvestigador = new Investigador(investigador);
-        return newInvestigador
+  User
+    .findAll({ where: {
+        [Op.or]: [
+          { codigo: user.codigo },
+          { email: user.email },
+          { numero_doc: user.numero_doc }
+        ]
+      }
+    })
+    .then((usersFound) => {
+      if(usersFound.length !== 0){
+        let error = '';
+        for(let i = 0; i<usersFound.length ; i++){
+          if(usersFound[i].codigo == user.codigo){
+            error = 'Ya existe un usuario con el mismo codigo';
+            break;
+          }
+          if(usersFound[i].email == user.email){
+            error = 'Ya existe un usuario con el mismo email';
+            break;
+          }
+          if(usersFound[i].numero_doc == user.numero_doc){
+            error = 'Ya existe un usuario con el mismo numero de documento';
+            break;
+          }
+        }
+        cb({ error });
+      }else{
+        const newUser = new User(user);
+        newUser
           .save()
-          .then((investigadorSaved) => {
-            userSaved.investigador = investigadorSaved;
+          .then((userSaved) => {
+            if(userSaved.id_perfil == 2){
+              investigador.id_usuario = userSaved.id_usuario;
+              const newInvestigador = new Investigador(investigador);
+              return newInvestigador
+                .save()
+                .then((investigadorSaved) => {
+                  userSaved.investigador = investigadorSaved;
+                  cb(null, userSaved);
+                })
+                .catch(err => {
+                  userSaved
+                    .destroy()
+                    .then(() => {
+                      cb(err)
+                    });
+                });
+            }
             cb(null, userSaved);
           })
-          .catch(err => {
-            userSaved
-              .destroy()
-              .then(() => {
-                cb(err)
-              });
-          });
+          .catch(err => cb(err));
       }
-      cb(null, userSaved);
     })
     .catch(err => cb(err));
+  
 }
 
 exports.login = (user, cb) => {

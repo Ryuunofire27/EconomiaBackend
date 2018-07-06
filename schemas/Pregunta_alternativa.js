@@ -8,7 +8,7 @@ const Pregunta_alternativa = sequelize.define('pregunta_alternativa', {
   id_alternativa: { type: Sequelize.INTEGER, allowNull: false, primaryKey: true },
   id_pregunta: { type: Sequelize.INTEGER, allowNull: false, primaryKey: true }
 }, {
-  tableName: 'PREGUNTAS_ALTERNATIVA'
+  tableName: 'PREGUNTAS_ALTERNATIVAS'
 });
 
 
