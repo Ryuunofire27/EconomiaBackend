@@ -17,7 +17,7 @@ exports.getAll = (req, res) => {
 exports.get = (req, res) => {
   const id = req.params.id;
   um.get(id, (err, user) => {
-    if(err) return res.status(500).send({ err: 'Error en la peticion' });
+    if(err) return res.status(500).send(err);
     res.send(user);
   });
 }

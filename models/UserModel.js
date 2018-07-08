@@ -6,12 +6,17 @@ const nodemailer = require('nodemailer');
 exports.getAll = (search, cb) => {
   const where = { };
   if(search.search.length !== 0){
-    where.nombres = {
-      [Op.like]: '%' + search.search + '%'
-    };
-    where.apellidos = {
-      [Op.like]: '%' + search.search + '%'
-    }
+    where[Op.or] = [
+      {
+        [Op.like]: '%' + search.search + '%'
+      },
+      {
+        [Op.like]: '%' + search.search + '%'
+      },
+      {
+        codigo: search.search
+      }
+    ]
   }
   if(search.user_type == 2){
     Investigador
@@ -21,8 +26,8 @@ exports.getAll = (search, cb) => {
         offset: search.limit * (search.page - 1),
         include: [User]
       })
-      .then((usersFound) => {
-        cb(null, usersFound);
+      .then((investigadorFound) => {
+        cb(null, investigadorFound);
       })
       .catch((err) => {
         cb(err);
@@ -45,15 +50,15 @@ exports.getAll = (search, cb) => {
 };
 
 exports.get = (data,cb) => {
-    let error;
-    User.findById(data).then(objeto => {
-      if(objeto!=null){
-        console.log("Se ha encontrado la zona " + objeto.nombres);
-      }else{
-        error = "ERROR : La zona buscada no existe.";
-      }
-      cb(error, objeto);
-    });
+    User
+      .findById(data)
+      .then(objeto => {
+        if(!objeto){
+          return cb({ error: 'No existe el usuario' })
+        }
+        cb(null, objeto);
+      })
+      .catch(err => cb(err));
 }
 
 exports.register = (data, cb) => {
@@ -110,7 +115,10 @@ exports.register = (data, cb) => {
               return newInvestigador
                 .save()
                 .then((investigadorSaved) => {
-                  userSaved.investigador = investigadorSaved;
+                  userSaved.id_tipo_doc = investigadorSaved.id_tipo_doc;
+                  userSaved.id_pais = investigadorSaved.id_pais;
+                  userSaved.universidad = investigadorSaved.universidad;
+                  return transporter.sendMail(mailOptions)
                 })
                 .then(() => {
                   cb(null, userSaved);
@@ -141,6 +149,17 @@ exports.login = (user, cb) => {
     .findOne({ where: { email: user.username } })
     .then((userFound) => {
       if(!userFound) return cb(null, { msg: 'Usuario no registrado'});
+      if(userFound.id_perfil == 2){
+        return Investigador
+          .findOne({ where: { id_usuario: userFound.id_usuario} })
+          .then((investigadorFound) => {
+            userSaved.id_tipo_doc = investigadorFound.id_tipo_doc;
+            userSaved.id_pais = investigadorFound.id_pais;
+            userSaved.universidad = investigadorFound.universidad;
+            cb(null, userFound);  
+          })
+          .catch(err => res.send(err));
+      }
       cb(null, userFound);
     })
     .catch(err => cb(err));
