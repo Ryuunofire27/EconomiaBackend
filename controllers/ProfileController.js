@@ -8,9 +8,9 @@ exports.getAll = (req, res) => {
 };
 
 exports.insert = (req, res) => {
-  if (!req.body.perfil) return res.status(401).send({ err: 'Falta llenar campos'});
+  if (!req.body.nombre_perfil) return res.status(401).send({ err: 'Falta llenar campos'});
   const perfil = {
-    nombre_perfil: req.body.perfil.toUpperCase(),
+    nombre_perfil: req.body.nombre_perfil.toUpperCase(),
     descripcion: req.body.descripcion
   };
   pm.insert(perfil, (err, perfil) => {

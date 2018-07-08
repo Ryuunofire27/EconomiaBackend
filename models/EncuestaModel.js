@@ -25,24 +25,104 @@ Alternativa.belongsToMany(Pregunta, {
 });
 
 exports.getAll = (cb) => {
+  let en = {};
   Encuesta
-    .find({
-      include: [ Segmento ]
+    .findAll({
+      limit: 1,
+      include: [{
+        model: Segmento,
+        as: 'segmentos',
+        include: [{
+          model: Pregunta,
+          as: 'preguntas'
+        }]
+      }]
     })
     .then((encuestas) => {
-      cb(null, encuestas);
+      en = encuestas;
+      return Promise.all(
+        en.map((e) => {
+          return Promise.all(
+            e.segmentos.map((s) => {
+              return Promise.all(
+                s.preguntas.map((p) => {
+                  p.dataValues.alternativas = [];
+                  return PreguntaAlternativa
+                    .findAll({
+                      where: { id_pregunta: p.id_pregunta }
+                    })
+                    .then((pas) => {
+                      return Promise.all(
+                        pas.map((pas) => {
+                          return Alternativa
+                            .findAll({ where: {
+                              id_alternativa: pas.id_alternativa
+                            }})
+                            .then((alternativas) => {
+                              p.dataValues.alternativas.push(alternativas[0]);
+                            });
+                        })
+                      )
+                    })
+                })
+            )
+            })
+          )
+        })
+      )
+    })
+    .then(() => {
+      cb(null, en);
     })
     .catch(err => cb(err))
 }
 
 exports.get = (id, cb) => {
+  let en = {};
   Encuesta
-    .findById(id)
-    .then((encuesta) => {
-      if(!encuesta) throw new Error("No existe una encuesta con el id indicado");
-      cb(null, encuesta);
+    .findById(id, {
+      include: [{
+        model: Segmento,
+        as: 'segmentos',
+        include: [{
+          model: Pregunta,
+          as: 'preguntas'
+        }]
+      }]
     })
-    .catch(err => cb(err));
+    .then((encuesta) => {
+      en = encuesta;
+      return Promise.all(
+        en.segmentos.map((s) => {
+          return Promise.all(
+            s.preguntas.map((p) => {
+              p.dataValues.alternativas = [];
+              return PreguntaAlternativa
+                .findAll({
+                  where: { id_pregunta: p.id_pregunta }
+                })
+                .then((pas) => {
+                  return Promise.all(
+                    pas.map((pas) => {
+                      return Alternativa
+                        .findAll({ where: {
+                          id_alternativa: pas.id_alternativa
+                        }})
+                        .then((alternativas) => {
+                          p.dataValues.alternativas.push(alternativas[0]);
+                        });
+                    })
+                  )
+                })
+            })
+        )
+        })
+      )
+    })
+    .then(() => {
+      cb(null, en);
+    })
+    .catch(err => cb(err))
 }
 
 exports.insert = (data, cb) => {

@@ -1,6 +1,5 @@
 const User = require('../schemas/User');
 const Investigador = require('../schemas/Investigador');
-const probarModelo = require('../schemas/SubirModelos');
 const { Op } = require('sequelize');
 const nodemailer = require('nodemailer');
 
@@ -14,7 +13,6 @@ exports.getAll = (search, cb) => {
       [Op.like]: '%' + search.search + '%'
     }
   }
-  console.log(search);
   if(search.user_type == 2){
     Investigador
       .findAll({
@@ -59,22 +57,21 @@ exports.get = (data,cb) => {
 }
 
 exports.register = (data, cb) => {
-  /*const transporter = nodemailer.createTransport({
+  const { user, investigador } = data;
+  const transporter = nodemailer.createTransport({
     service: 'SendGrid',
     auth: {
-      user: process.env.SENDGRID_USER,
-      pass: process.env.SENDGRID_PASSWORD
+      user: 'economiaEmail',
+      pass: 'economia1'
     }
   });
   const admiMail = 'cdvillagomez27@gmail.com';
   const mailOptions = {
     to: admiMail,
     from: admiMail,
-    subject: 'Activar cuenta Startruck',
-    text: `
-    El usuario ${user.rucData.ruc.split(' - ')[1]} con ruc ${user.ruc} acaba de registrarse y requiere activacion`
-  };*/
-  const { user, investigador } = data;
+    subject: 'Contraseña generada',
+    text: `Usuario con codigo ${user.codigo}, su contraseña es : ${user.contrasenia}`
+  };
   User
     .findAll({ where: {
         [Op.or]: [
@@ -114,6 +111,8 @@ exports.register = (data, cb) => {
                 .save()
                 .then((investigadorSaved) => {
                   userSaved.investigador = investigadorSaved;
+                })
+                .then(() => {
                   cb(null, userSaved);
                 })
                 .catch(err => {
@@ -124,7 +123,11 @@ exports.register = (data, cb) => {
                     });
                 });
             }
-            cb(null, userSaved);
+            return transporter.sendMail(mailOptions)
+              .then(() => {
+                cb(null, userSaved);
+              })
+              .catch(err => cb(err))
           })
           .catch(err => cb(err));
       }
@@ -135,9 +138,8 @@ exports.register = (data, cb) => {
 
 exports.login = (user, cb) => {
   User
-    .findOne({ where: { codigo: user.username } })
+    .findOne({ where: { email: user.username } })
     .then((userFound) => {
-      console.log(userFound);
       if(!userFound) return cb(null, { msg: 'Usuario no registrado'});
       cb(null, userFound);
     })

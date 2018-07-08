@@ -6,7 +6,7 @@ exports.getAll = (req, res) => {
     search: req.query.search || '',
     limit: req.query.limit || 10,
     page: req.query.page || 1,
-    user_type: req.query.user
+    user_type: req.query.type
   }
   um.getAll(search, (err, users) => {
     if(err) return res.status(500).send(err);
@@ -38,8 +38,8 @@ exports.register = (req, res) => {
   let investigador = null;
   if(user.id_perfil == 2){
     investigador = {
-      id_tipo_documento: req.body.tipo_doc,
-      id_pais: req.body.pais,
+      id_tipo_documento: req.body.id_tipo_doc,
+      id_pais: req.body.id_pais,
       universidad: req.body.universidad
     };
     user.foto = req.body.foto;
@@ -83,7 +83,6 @@ exports.login = (req, res) => {
   um.login(user, (err, data) => {
     if (err) return res.status(500).send(err);
     if (data.msg) return res.send(data);
-    console.log(data.contrasenia)
     util.comparePassword(user.password, data.contrasenia, (err, isMatch) => {
       if(err) return res.status(500).send(err);
       if(isMatch) return res.send(data);

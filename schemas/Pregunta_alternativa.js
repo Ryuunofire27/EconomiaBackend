@@ -11,6 +11,4 @@ const Pregunta_alternativa = sequelize.define('pregunta_alternativa', {
   tableName: 'PREGUNTAS_ALTERNATIVAS'
 });
 
-
-
 module.exports = Pregunta_alternativa;

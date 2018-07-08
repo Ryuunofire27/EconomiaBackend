@@ -36,7 +36,7 @@ exports.insert = (req, res) => {
 }
 
 exports.delete = (req, res) => {
-  pm.delete(req.params.id, (err) => {
+  em.delete(req.params.id, (err) => {
     if(err) return res.status(500).send(err);
     res.send({ msg: 'Eliminacion exitosa' })
   })

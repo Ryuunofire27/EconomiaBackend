@@ -5,6 +5,7 @@ const multer = require('multer');
 const routes = require('./routes/route');
 const pug = require('pug');
 const path = require('path');
+const documentation = require('./controllers/DocumentationController');
 
 const app = express();
 
@@ -14,7 +15,8 @@ app
   .set('port', 8080)
   .set('app', app)
   .set('views', path.join(__dirname, 'views'))
-  .set('view engine', 'pug')
+  .engine('html', require('ejs').renderFile)
+  .set('view engine', 'html')
 
   // Middlewares
   /*.use(cors())
@@ -24,6 +26,6 @@ app
   .use(bodyParser.urlencoded({ extended: false }))
   // Rutas
   .use(routes)
-  .get('/', (req, res) => res.render('index'));
+  .get('/', documentation.getDocumentation);
 
 module.exports = app;
