@@ -19,10 +19,11 @@ app
   .set('view engine', 'html')
 
   // Middlewares
-  .use(fileUpload())
   .use(cors())
   .use(bodyParser.json())
   .use(bodyParser.urlencoded({ extended: false }))
+  .use(fileUpload())
+
   // Rutas
   .use(routes)
   .get('/', documentation.getDocumentation);

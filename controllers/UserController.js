@@ -80,6 +80,7 @@ exports.login = (req, res) => {
     username: req.body.email,
     password: req.body.password
   };
+  console.log(req.body)
   um.login(user, (err, data) => {
     if (err) return res.status(500).send(err);
     if (data.msg) return res.send(data);
