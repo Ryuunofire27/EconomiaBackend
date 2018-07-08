@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const multer = require('multer');
+const fileUpload = require('express-fileupload');
 const routes = require('./routes/route');
 const pug = require('pug');
 const path = require('path');
@@ -19,8 +19,7 @@ app
   .set('view engine', 'html')
 
   // Middlewares
-  /*.use(cors())
-  .use(multer)*/
+  .use(fileUpload())
   .use(cors())
   .use(bodyParser.json())
   .use(bodyParser.urlencoded({ extended: false }))
