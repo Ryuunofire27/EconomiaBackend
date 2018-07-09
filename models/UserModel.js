@@ -2,81 +2,101 @@ const User = require('../schemas/User');
 const Investigador = require('../schemas/Investigador');
 const { Op } = require('sequelize');
 const nodemailer = require('nodemailer');
+const sequelize = require('../database/db');
+
+
+
+User.hasOne(Investigador, {
+  foreignKey: 'id_usuario',
+  as: 'investigador'
+})
 
 exports.getAll = (search, cb) => {
-  const where = { };
+  const where = { status: 1 };
   if(search.search.length !== 0){
     where[Op.or] = [
       {
-        [Op.like]: '%' + search.search + '%'
+        nombres: {
+          [Op.like]: '%' + search.search + '%'
+        }
       },
       {
-        [Op.like]: '%' + search.search + '%'
+        apellidos: {
+          [Op.like]: '%' + search.search + '%'
+        }
       },
       {
         codigo: search.search
       }
     ]
   }
-  if(search.user_type == 2){
-    Investigador
-      .findAll({
-        where,
-        limit: parseInt(search.limit),
-        offset: search.limit * (search.page - 1),
-        include: [User]
+  if(search.user_type == 1) where.id_perfil = 2;
+  if(search.user_type == 2) where.id_perfil = 3;
+  User
+    .findAll({
+      where,
+      limit: parseInt(search.limit),
+      offset: search.limit * (search.page - 1),
+      include: [{
+        model: Investigador,
+        as: 'investigador'
+      }]
+    })
+    .then((usersFound) => {
+      usersFound = usersFound.map((u) => {
+        if(u.dataValues.investigador){
+          u.dataValues.universidad= u.dataValues.investigador.universidad;
+          u.dataValues.id_pais= u.dataValues.investigador.id_pais;
+          u.dataValues.id_tipo_doc= u.dataValues.investigador.id_tipo_documento;
+        }
+        delete u.dataValues['investigador']
+        return u;
       })
-      .then((investigadorFound) => {
-        cb(null, investigadorFound);
-      })
-      .catch((err) => {
-        cb(err);
-      })
-    
-  }else{
-    User
-      .findAll({
-        where,
-        limit: parseInt(search.limit),
-        offset: search.limit * (search.page - 1)
-      })
-      .then((usersFound) => {
-        cb(null, usersFound);
-      })
-      .catch((err) => {
-        cb(err);
-      })
-  }
+      cb(null, usersFound);
+    })
+    .catch((err) => {
+      cb(err);
+    })
 };
 
-exports.get = (data,cb) => {
-    User
-      .findById(data)
-      .then(objeto => {
-        if(!objeto){
-          return cb({ error: 'No existe el usuario' })
-        }
-        cb(null, objeto);
-      })
-      .catch(err => cb(err));
+exports.get = (id,cb) => {
+  User
+    .findOne({
+      where: { id_usuario: id },
+      include: [{
+        model: Investigador,
+        as: 'investigador'
+      }]
+    })
+    .then((userFound) => {
+      if(!userFound) return cb({ error: 'No existe el usuario' }, 404);
+      if(userFound.dataValues.investigador){
+        userFound.dataValues.universidad= userFound.dataValues.investigador.universidad;
+        userFound.dataValues.id_pais= userFound.dataValues.investigador.id_pais;
+        userFound.dataValues.id_tipo_doc= userFound.dataValues.investigador.id_tipo_documento;
+      }
+      delete userFound.dataValues['investigador'];
+      cb(null, 200, userFound);
+    })
+    .catch(err => cb(err, 500))
 }
 
-exports.register = (data, cb) => {
-  const { user, investigador } = data;
+exports.register = (user, cb) => {
   const transporter = nodemailer.createTransport({
     service: 'SendGrid',
     auth: {
-      user: 'economiaEmail',
-      pass: 'economia1'
+      user: process.env.SENDGRID_USER,
+      pass: process.env.SENDGRID_PASSWORD
     }
   });
-  const admiMail = 'cdvillagomez27@gmail.com';
+  const admiMail = 'sistemaencuestas@gmail.com';
   const mailOptions = {
-    to: admiMail,
+    to: user.email,
     from: admiMail,
     subject: 'Contraseña generada',
-    text: `Usuario con codigo ${user.codigo}, su contraseña es : ${user.contrasenia}`
+    text: `Usuario con codigo ${user.codigo}, su contraseña es : ${user.contraseniaNoHashed}`
   };
+  delete user['contraseniaNoHashed'];
   User
     .findAll({ where: {
         [Op.or]: [
@@ -103,64 +123,133 @@ exports.register = (data, cb) => {
             break;
           }
         }
-        cb({ error });
-      }else{
-        const newUser = new User(user);
-        newUser
-          .save()
-          .then((userSaved) => {
-            if(userSaved.id_perfil == 2){
-              investigador.id_usuario = userSaved.id_usuario;
-              const newInvestigador = new Investigador(investigador);
-              return newInvestigador
-                .save()
-                .then((investigadorSaved) => {
-                  userSaved.id_tipo_doc = investigadorSaved.id_tipo_doc;
-                  userSaved.id_pais = investigadorSaved.id_pais;
-                  userSaved.universidad = investigadorSaved.universidad;
-                  return transporter.sendMail(mailOptions)
-                })
-                .then(() => {
-                  cb(null, userSaved);
-                })
-                .catch(err => {
-                  userSaved
-                    .destroy()
-                    .then(() => {
-                      cb(err)
-                    });
-                });
-            }
-            return transporter.sendMail(mailOptions)
-              .then(() => {
-                cb(null, userSaved);
-              })
-              .catch(err => cb(err))
-          })
-          .catch(err => cb(err));
+        return cb({ error }, 409);
       }
+      const options = {};
+      if(user.id_perfil == 2){
+        options.include = [{
+          model: Investigador,
+          as: 'investigador'
+        }];
+      }else{
+        delete user['investigador']
+      }
+      User
+        .create(user, options)
+        .then((userSaved) => {
+          if(userSaved.id_perfil == 2){
+            userSaved.dataValues.id_tipo_documento = userSaved.dataValues.investigador.id_tipo_documento;
+            userSaved.dataValues.id_pais = userSaved.dataValues.investigador.id_pais;
+            userSaved.dataValues.universidad = userSaved.dataValues.investigador.universidad;
+          }
+          delete userSaved.dataValues['investigador'];
+          return transporter.sendMail(mailOptions)
+            .then(() => {
+              cb(null, 200, userSaved);
+            })
+            .catch(err => {
+              userSaved
+                .destroy()
+                .then(() => cb(err, 500))
+                .catch((err) => cb(err, 500))
+            });
+        })
+        .catch(err => cb(err, 500));
     })
-    .catch(err => cb(err));
+    .catch(err => cb(err, 500));
   
 }
 
+exports.changePassword = (user, cb) => {
+  User
+    .findById(user.id)
+    .then((userFound) => {
+      if(!userFound) return cb({ err: 'No existe el usuario' }, 404);
+      user.verifyPassword(user.oldpassword, userFound.dataValues.contrasenia, (err, isMatch) => {
+        if(err) return cb(err, 500);
+        if(!isMatch) return cb({ err: 'Contraseña equivocada' }, 401);
+        userFound.contrasenia =  user.password;
+        userFound
+          .save()
+          .then((userSaved) => {
+            cb(userSaved, 200)
+          })
+          .catch(err => cb(err, 500));
+      })
+    })
+    .catch(err => cb(err, 500));
+}
+
+exports.resetPassword = (user, cb) => {
+  const transporter = nodemailer.createTransport({
+    service: 'SendGrid',
+    auth: {
+      user: process.env.SENDGRID_USER,
+      pass: process.env.SENDGRID_PASSWORD
+    }
+  });
+  const admiMail = 'sistemaencuestas@gmail.com';
+  const mailOptions = {
+    to: user.email,
+    from: admiMail,
+    subject: 'Contraseña reseteada',
+    html: `<b>Has pedido que se genere una nueva contraseña, tu nueva contraseña es: ${user.generatedPassword}</b>`
+
+  };
+  User
+    .findById(user.id)
+    .then((userFound) => {
+      if(!userFound) return cb({ err: 'No existe el usuario' }, 404);
+      return sequelize.transaction((t) => {
+        return User
+          .update({ contrasenia: user.password }, {
+            where: { id_usuario: user.id },
+            transaction: t
+          })
+          .then(() => {
+            return transporter.sendMail(mailOptions);
+          });
+      });
+    })
+    .then(() => {
+      cb({ msg: 'Contraseña cambiada con exito' }, 200);
+    })
+    .catch(err => {
+      cb(err, 500)
+    });
+};
+
 exports.login = (user, cb) => {
   User
-    .findOne({ where: { email: user.username } })
-    .then((userFound) => {
-      if(!userFound) return cb(null, { msg: 'Usuario no registrado'});
-      if(userFound.id_perfil == 2){
-        return Investigador
-          .findOne({ where: { id_usuario: userFound.id_usuario} })
-          .then((investigadorFound) => {
-            userSaved.id_tipo_doc = investigadorFound.id_tipo_doc;
-            userSaved.id_pais = investigadorFound.id_pais;
-            userSaved.universidad = investigadorFound.universidad;
-            cb(null, userFound);  
-          })
-          .catch(err => res.send(err));
-      }
-      cb(null, userFound);
+    .findOne({ 
+      where: { email: user.username },
+      include: [{
+        model: Investigador,
+        as: 'investigador'
+      }] 
     })
-    .catch(err => cb(err));
+    .then((userFound) => {
+      if(!userFound) return cb(null, 401, { msg: 'Usuario no registrado'});
+      if(userFound.id_perfil == 2){
+        userFound.dataValues.id_tipo_doc = userFound.dataValues.investigador.id_tipo_doc;
+        userFound.dataValues.id_pais = userFound.dataValues.investigador.id_pais;
+        userFound.dataValues.universidad = userFound.dataValues.investigador.universidad;
+      }
+      delete userFound.dataValues['investigador'];
+      cb(null, 200, userFound);
+    })
+    .catch(err => cb(err, 500));
+}
+
+exports.delete = (id, cb) => {
+  User
+    .findById(id)
+    .then((userFound) => {
+      if(!userFound) return cb({ err: 'No existe el usuario' }, 404);
+      userFound
+        .destroy()
+        .then(() => cb(null, 200, { msg: 'eliminado correctamente' }))
+        .catch(err => cb(err, 500))
+    })
+    .catch(err => cb(err, 500));
 }

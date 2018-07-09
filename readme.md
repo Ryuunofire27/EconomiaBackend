@@ -14,7 +14,9 @@ Bienvenido al sistema encuesta API. Esta api provee el acceso a los servicios de
       "id_usuario": Number,
       /*||||||||||*/
       "codigo": String,
+      /*Solo en GET*/
       "contrasenia": String,
+      /*||||||||||*/
       "nombres": String,
       "apellidos": String,
       "telefono": String,
@@ -68,7 +70,7 @@ Crea un nuevo usuario ( Encuestador o Investigador )
 + Response 200
     [Usuario][]
 
-### Login Usuario [POST]
+### Login Usuario [POST /usuarios/login]
 
 Loggea un usuario ( Encuestador o Investigador )
 
@@ -81,6 +83,42 @@ Loggea un usuario ( Encuestador o Investigador )
 
 + Response 200
     [Usuario][]
+
+### Cambiar Contraseña [POST /usuarios/{id}/changePassword]
+
+Cambia la contraseña de un usuario ( Encuestador o Investigador )
+
++ Parameters
+    + id: (number)
+
++ Request
+    + Body 
+        {
+          "oldpassword": String,
+          "password": String,
+          "repassword": String
+        }
+
++ Response 200
+    [Usuario][]
+
+### Resetear Contraseña [POST /usuarios/{id}/resetPassword]
+
+Resetea la contraseña de un usuario ( Encuestador o Investigador ) y se la envia a su correo
+
++ Parameters
+    + id: (number)
+
++ Request
+    + Body 
+        {
+            "email": String
+        }
+
++ Response 200
+    {
+        "msg": "Contraseña generada con exito"
+    }
 
 ### Eliminar Usuario [DELETE]
 

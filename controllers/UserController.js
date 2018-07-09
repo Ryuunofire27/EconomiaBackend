@@ -16,16 +16,15 @@ exports.getAll = (req, res) => {
 
 exports.get = (req, res) => {
   const id = req.params.id;
-  um.get(id, (err, user) => {
-    if(err) return res.status(500).send(err);
-    res.send(user);
+  um.get(id, (err, status, user) => {
+    if(err) return res.status(status).send(err);
+    res.status(status).send(user);
   });
 }
 
 exports.register = (req, res) => {
   const user = {
     codigo: req.body.codigo,
-    contrasenia: req.body.contrasenia,
     nombres: req.body.nombres,
     apellidos: req.body.apellidos,
     telefono: req.body.telefono,
@@ -34,44 +33,61 @@ exports.register = (req, res) => {
     email: req.body.email,
     genero: req.body.genero,
     id_perfil: req.body.id_perfil,
-  }
-  let investigador = null;
-  if(user.id_perfil == 2){
-    investigador = {
+    foto: req.body.foto,
+    investigador: {
       id_tipo_documento: req.body.id_tipo_doc,
       id_pais: req.body.id_pais,
       universidad: req.body.universidad
-    };
-    user.foto = req.body.foto;
-    if (!req.body.foto) res.status(401).send({ err: 'El investigador requiere de una foto' })
-  }else{
-    user.foto = req.body.foto || '';
+    }
+  }
+  if(user.id_perfil == 2){
+    if (!user.foto || user.foto == '') res.status(400).send({ err: 'El investigador requiere de una foto' })
   }
   user.nombres = user.nombres.toUpperCase();
   user.apellidos = user.apellidos.toUpperCase();
   user.genero = user.genero.toUpperCase();
-  //const generatedPassword = util.generatePassword(16);
-  util.cryptPassword(/*generatedPassword*/user.contrasenia, (err, cryptedPassword) => {
+  const generatedPassword = util.generatePassword(16);
+  user.contraseniaNoHashed = generatedPassword;
+  util.cryptPassword(generatedPassword, (err, cryptedPassword) => {
     if(err) return res.status(500).send(err);
     user.contrasenia = cryptedPassword;
-    um.register({ user, investigador }, (err, user) => {
-      if(err) return res.status(500).send(err);
-      user.contrasenia = generatedPassword;
-      res.send(user);
+    um.register(user, (err, status, user) => {
+      if(err) return res.status(status).send(err);
+      res.status(status).send(user);
     });
   });
 }
 
 exports.changePassword = (req, res) => {
   const user = {
+    id: req.params.id,
     oldpassword: req.body.oldpassword,
     password: req.body.password,
-    repassword: req.body.password
+    repassword: req.body.repassword,
+    verifyPassword: util.comparePassword
   };
+  if(!user.oldpassword || user.oldpassword == "") return res.status(400).send({ err: 'Falta enviar datos' });
   if(user.password != user.repassword) return res.status(401).send({ msg: 'Las contraseñas no concuerdan' });
-  um.changePassword(user, (err, data) => {
+  util.cryptPassword(user.password, (err, cryptedPassword) => {
     if(err) return res.status(500).send(err);
-    res.send(data);
+    user.password = cryptedPassword;
+    um.changePassword(user, (data, status) => {
+      res.status(status).send(data);
+    });
+  });
+}
+
+exports.resetPassword = (req, res) => {
+  const user =  { id: req.params.id, email: req.body.email };
+  if(!user.email || user.email == '') return res.status(400).send({ err: 'Falta enviar el correo' });
+  const generatedPassword = util.generatePassword(16);
+  util.cryptPassword(generatedPassword, (err, cryptedPassword) => {
+    if(err) return res.status(500).send(err);
+    user.password = cryptedPassword;
+    user.generatedPassword = generatedPassword;
+    um.resetPassword(user, (data, status) => {
+      res.status(status).send(data);
+    });
   });
 }
 
@@ -80,14 +96,20 @@ exports.login = (req, res) => {
     username: req.body.email,
     password: req.body.password
   };
-  console.log(req.body)
-  um.login(user, (err, data) => {
-    if (err) return res.status(500).send(err);
-    if (data.msg) return res.send(data);
+  um.login(user, (err, status = 200, data) => {
+    if (err) return res.status(status).send(err);
+    if (data.msg) return res.status(status).send(data);
     util.comparePassword(user.password, data.contrasenia, (err, isMatch) => {
-      if(err) return res.status(500).send(err);
-      if(isMatch) return res.send(data);
-      res.send({ msg: 'Contraseña equivocada' });
+      if(err) return res.status(status).send(err);
+      if(isMatch) return res.status(status).send(data);
+      res.status(401).send({ msg: 'Contraseña equivocada' });
     });
+  });
+}
+
+exports.delete = (req, res) => {
+  um.delete(req.params.id, (err, status, data) => {
+    if(err) return res.status(status).send(err);
+    res.status(status).send(data);
   });
 }

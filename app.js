@@ -6,8 +6,11 @@ const routes = require('./routes/route');
 const pug = require('pug');
 const path = require('path');
 const documentation = require('./controllers/DocumentationController');
+const dotenv = require('dotenv');
 
 const app = express();
+
+dotenv.load({ path: '.env' })
 
 
 app
