@@ -306,3 +306,46 @@ Se elimina la encuesta
         {
           "msg": "Eliminado Correctamente"
         }
+
+# Group Tipo Documentos
+
+## TipoDocumento [/tipodocumentos/{id}]
+
++ Model
+    ```js
+    {
+      /*Solo en GET*/
+      // LLave Primaria
+      "id_tipo_documento": Number,
+      // Atributos extras
+      "nombre_documento": String,
+      "descrip_documento": String
+    }
+    ```
+
+### Obtener todos los tipos de documentos [GET]
+
+Obtiene todos los tipos de documentos que existen en el Sistema.
+
++ Response 200 (application/json) 
+    [TipoDocumento][]
+
+### Crear un nuevo tipo de documento [POST]
+
+Crea una nuevo tipo de documento
+
++ Response 201 (application/json)
+    [TipoDocumento][]
+
+### Elimina un tipo de documento [DELETE]
+
+Se elimina el tipo de documento seleccionado.
+
++ Parameters
+    + id: (Number)
+
++ Response 200 (application/json)
+    + Body
+        {
+          "msg": "Tipo de documento eliminado correctamente"
+        }
