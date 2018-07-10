@@ -24,7 +24,12 @@ Bienvenido al sistema encuesta API. Esta api provee el acceso a los servicios de
       "numero_doc": String,
       "email": String,
       "genero": String,
+      /*Solo en post o put*/
+      "foto": File,
+      /*|||||||*/
+      /*Solo en get*/
       "foto": String,
+      /*|||||||*/
       "status": Number,
       "id_perfil": Number,
       /* Si es investigador*/
