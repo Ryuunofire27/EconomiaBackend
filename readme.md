@@ -5,7 +5,7 @@ Bienvenido al sistema encuesta API. Esta api provee el acceso a los servicios de
 # Group Usuarios
 
 
-## Usuario [/usuarios/{?search}{?limit}{?page}{?type}{id}]
+## Usuario [/usuarios/{?search}{&limit}{&page}{&type}{id}]
 + Model (application/json)
 
     ```js
@@ -44,13 +44,16 @@ Bienvenido al sistema encuesta API. Esta api provee el acceso a los servicios de
 
 Obtiene un arreglo de usuarios
 
-  + Parameters
-      + search (string, optional) - El nombre, apellido o codigo de la persona a la que se busca
-      + limit (number, optional) - El limite de usuarios que regresa el metodo
-          + Default: 10
-      + page (number, optional) - La pagina desde donde se empieza la extraccion de usuarios
-          + Default: 1
-      + type (number, optional) - El tipo de perfil de los usuarios que se devolveran
++ Parameters
+    + search (string, optional) - El nombre, apellido o codigo de la persona a la que se busca
+    + limit (number, optional) - El limite de usuarios que regresa el metodo
+        + Default: 10
+    + page (number, optional) - La pagina desde donde se empieza la extraccion de usuarios
+        + Default: 1
+    + type (enum[number], optional) - El tipo de perfil de los usuarios que se devolveran (1 - Encuestadores, 2 - Investigadores)
+        + Members
+            + 1 
+            + 2 
 
 + Response 200 (application/json)
     [Usuario][]
@@ -60,10 +63,34 @@ Obtiene un arreglo de usuarios
 Obtiene el usuario con el id
 
 + Parameters
-  + id: (Number) - el id del usuario
+    + id: (Number) - el id del usuario
 
 + Response 200 (application/json)
     [Usuario][]
+
+### Obtener encuestas hechas por el investifador [GET /usuarios/{id}/encuestas/{?limit}{&page}]
+
+Obtiene un arreglo de Encuestas creadas por el usuario.
+
++ Parameters
+    + id: (Number) - el id del usuario
+
+    + limit (number, optional) - El limite de usuarios que regresa el metodo
+        + Default: 10
+
+    + page (number, optional) - La pagina desde donde se empieza la extraccion de usuarios
+        + Default: 1
+
++ Response 200 (application/json)
+    + Body
+        {
+            "id_encuesta": Number,
+            "tema_encuesta": String,
+            "tiempo_habil": String,
+            "fecha_creacion": Date,
+            "fecha_inicio": Date,
+            "fecha_termino": Date
+        }
 
 ### Crear Usuario [POST]
 
@@ -266,7 +293,7 @@ Se elimina la zona
 
 # Group Encuestas
 
-## Encuesta [/encuestas/{?limit}{?page}{id}]
+## Encuesta [/encuestas/{?limit}{&page}{id}]
 
 + Model
     ```js
@@ -275,7 +302,7 @@ Se elimina la zona
       "id_encuesta": Number,
       /*||||||||||*/
       "tema_encuesta": String,
-      "tiempo_habil": Date,
+      "tiempo_habil": String,
       "fecha_creacion": Date,
       "fecha_inicio": Date,
       "fecha_termino": Date,
@@ -317,8 +344,16 @@ Obtiene un arreglo de Encuestas paginado.
       + page (number, optional) - La pagina desde donde se empieza la extraccion de usuarios
           + Default: 1
 
-+ Response 200 (application/json) 
-    [Encuesta][]
++ Response 200 (application/json)
+    + Body
+        {
+            "id_encuesta": Number,
+            "tema_encuesta": String,
+            "tiempo_habil": String,
+            "fecha_creacion": Date,
+            "fecha_inicio": Date,
+            "fecha_termino": Date
+        }
 
 ### Obtener una Encuesta [GET]
 
