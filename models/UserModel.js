@@ -35,7 +35,7 @@ exports.getAll = (search, cb) => {
   User
     .findAll({
       where,
-      limit:(search.limit,
+      limit: search.limit,
       offset: search.limit * (search.page - 1),
       include: [{
         model: Investigador,
