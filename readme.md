@@ -392,3 +392,44 @@ Se elimina el tipo de documento seleccionado.
         {
           "msg": "Tipo de documento eliminado correctamente"
         }
+# Group Sectores
+
+## Sector [/sectores/{id}]
+
++ Model
+    ```js
+    {
+      /*Llave primaria*/
+      "id_sector": Number,
+      /*Atributos extras*/
+      "nombre_sector": String,
+      "descripcion_sector": String
+    }
+    ```
+
+### Obtener todos los Sectores [GET]
+
+Obtiene todos los sectores que existen.
+
++ Response 200 (application/json) 
+    [Sector][]
+
+### Crear un nuevo Sector [POST]
+
+Crea un nuevo sector
+
++ Response 201 (application/json)
+    [Sector][]
+
+### Elimina un Sector [DELETE]
+
+Se elimina el sector seleccionado
+
++ Parameters
+    + id: (Number)
+
++ Response 200 (application/json)
+    + Body
+        {
+          "msg": "Sector eliminado correctamente"
+        }

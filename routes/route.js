@@ -4,6 +4,7 @@ const pr = require('./paisRoute');
 const pror = require('./profileRoute');
 const er = require('./encuestaRoute');
 const tr = require('./tipoDocumentoRoute');
+const sr = require('./sectorRoute');
 
 route
   .use('/usuarios', ur)
@@ -11,5 +12,6 @@ route
   .use('/perfiles', pror)
   .use('/encuestas', er)
   .use('/tipodocumentos', tr)
+  .use('/sectores',sr)
   
 module.exports = route;
