@@ -7,9 +7,8 @@ exports.getAll = (req, res) => {
   }
   filters.limit = parseInt(filters.limit);
   filters.page = parseInt(filters.page);
-  em.getAll(filters, (err, encuestas) => {
-    if (err) return res.status(500).send(err);
-    res.send(encuestas);
+  em.getAll(filters, (data, status) => {
+    res.status(status).send(data);
   });
 };
 
@@ -27,23 +26,18 @@ exports.getRespuestasByEncuesta = (req, res) => {
 }
 
 exports.insert = (req, res) => {
-  const { bloque_segmento } = req.body;
-  const data = {};
-  data.encuesta = {
-    tema_encuesta: req.body.titulo_encuesta,
-    fecha_creacion: new Date(),
-    id_investigador: req.body.investigador
-  }; 
-  data.segmentos = bloque_segmento.map((b) => {
-    const tema_segmento = b.titulo;
-    const preguntas = b.bloque_pregunta.map((p) => {
-      return { nmr_pregunta: p.nmr, pregunta: p.pregunta, alternativas: p.alternativas };
-    });
-    return { tema_segmento, preguntas };
-  });
-  em.insert(data, (err, encuesta) => {
-    if(err) return res.status(500).send(err);
-    res.send(encuesta);
+  const data = {
+    encuesta : {
+      tema_encuesta: req.body.titulo_encuesta,
+      fecha_creacion: new Date(),
+      id_investigador: req.body.investigador,
+      fecha_inicio: new Date(req.body.fecha_inicio),
+      fecha_termino: new Date(req.body.fecha_termino)
+    },
+    segmentos: req.body.segmentos
+  }
+  em.insert(data, (data, status) => {
+    res.status(status).send(data);
   });
 }
 

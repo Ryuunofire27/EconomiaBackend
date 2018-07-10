@@ -13,6 +13,8 @@ User.hasOne(Investigador, {
 
 exports.getAll = (search, cb) => {
   const where = { status: 1 };
+  let count = 0;
+  let pages = 0;
   if(search.search.length !== 0){
     where[Op.or] = [
       {
@@ -33,16 +35,26 @@ exports.getAll = (search, cb) => {
   if(search.user_type == 1) where.id_perfil = 2;
   if(search.user_type == 2) where.id_perfil = 3;
   User
-    .findAll({
-      where,
-      limit: search.limit,
-      offset: search.limit * (search.page - 1),
-      include: [{
-        model: Investigador,
-        as: 'investigador'
-      }]
+    .count({ where })
+    .then((usersCount) => {
+      count = usersCount;
+      return User
+        .findAll({
+          where,
+          limit: search.limit,
+          offset: search.limit * (search.page - 1),
+          include: [{
+            model: Investigador,
+            as: 'investigador'
+          }]
+        })
     })
     .then((usersFound) => {
+      pages = Math.ceil(count / search.limit);
+      const data = {
+        count,
+        pages
+      };
       usersFound = usersFound.map((u) => {
         if(u.dataValues.investigador){
           u.dataValues.universidad= u.dataValues.investigador.universidad;
@@ -52,7 +64,8 @@ exports.getAll = (search, cb) => {
         delete u.dataValues['investigador']
         return u;
       })
-      cb(null, usersFound);
+      data.users = usersFound;
+      cb(null, data);
     })
     .catch((err) => {
       cb(err);

@@ -31,15 +31,28 @@ Pregunta.hasMany(Respuesta, {
 });
 
 exports.getAll = (filters, cb) => {
+  let count = 0;
+  let pages = 0;
   Encuesta
-    .findAll({
-      limit: filters.limit,
-      offset: filters.limit * (filters.page -1)
+    .count()
+    .then((encuestasCount) => {
+      count = encuestasCount;
+      return Encuesta
+        .findAll({
+          limit: filters.limit,
+          offset: filters.limit * (filters.page -1)
+        })
     })
     .then((encuestas) => {
-      cb(null, encuestas);
+      pages = Math.ceil(count / filters.limit);
+      const data = {
+        count,
+        pages,
+        encuestas
+      };
+      cb(data, 200);
     })
-    .catch(err => cb(err))
+    .catch(err => cb(err, 500))
 }
 
 exports.get = (id, cb) => {
@@ -162,7 +175,7 @@ exports.insert = (data, cb) => {
         );
       });
   })
-  .then(result => cb(null, { msg: 'Insercion exitosa' }))
+  .then(() => cb(null, { msg: 'Insercion exitosa' }))
   .catch(err => cb(err));
 };
 
