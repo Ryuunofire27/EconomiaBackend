@@ -470,3 +470,47 @@ Se elimina el tipo de empresa seleccionado
         {
           "msg": "Tipo de empresa eliminado correctamente"
         }
+
+
+# Group Encuestados
+
+## Encuestado [/encuestados/{id}]
+
++ Model
+    ```js
+    {
+      /*Llave primaria*/
+      "id_encuestado": Number,
+      /*Atributos extras*/
+      "ruc": String,
+      "razon_social": String,
+      "representante": String
+    }
+    ```
+
+### Obtener todos los encuestados [GET]
+
+Obtiene todos los encuestados que existen.
+
++ Response 200 (application/json) 
+    [Encuestado][]
+
+### Crear un nuevo encuestado [POST]
+
+Crea un nuevo encuestado
+
++ Response 201 (application/json)
+    [Encuestado][]
+
+### Elimina un encuestado [DELETE]
+
+Se elimina el encuestado seleccionado
+
++ Parameters
+    + id: (Number)
+
++ Response 200 (application/json)
+    + Body
+        {
+          "msg": "Encuestado eliminado correctamente"
+        }
