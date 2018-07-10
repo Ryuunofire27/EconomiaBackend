@@ -1,7 +1,13 @@
 const em = require('../models/EncuestaModel');
 
 exports.getAll = (req, res) => {
-  em.getAll((err, encuestas) => {
+  const filters = {
+    limit: req.query.limit || 10,
+    page: req.query.page || 1
+  }
+  filters.limit = parseInt(filters.limit);
+  filters.page = parseInt(filters.page);
+  em.getAll(filters, (err, encuestas) => {
     if (err) return res.status(500).send(err);
     res.send(encuestas);
   });
@@ -14,6 +20,12 @@ exports.get = (req, res) => {
   });
 }
 
+exports.getRespuestasByEncuesta = (req, res) => {
+  em.getRespuestasByEncuesta(req.params.id, (data, status) => {
+    res.status(status).send(data);
+  })
+}
+
 exports.insert = (req, res) => {
   const { bloque_segmento } = req.body;
   const data = {};
@@ -21,7 +33,7 @@ exports.insert = (req, res) => {
     tema_encuesta: req.body.titulo_encuesta,
     fecha_creacion: new Date(),
     id_investigador: req.body.investigador
-  };
+  }; 
   data.segmentos = bloque_segmento.map((b) => {
     const tema_segmento = b.titulo;
     const preguntas = b.bloque_pregunta.map((p) => {

@@ -8,6 +8,8 @@ exports.getAll = (req, res) => {
     page: req.query.page || 1,
     user_type: req.query.type
   }
+  search.limit = parseInt(search.limit);
+  search.page = parseInt(search.page);
   um.getAll(search, (err, users) => {
     if(err) return res.status(500).send(err);
     res.send(users);
@@ -22,6 +24,19 @@ exports.get = (req, res) => {
   });
 }
 
+exports.getEncuestasByUser = (req, res) => {
+  const filters = {
+    id: req.params.id,
+    limit: req.query.limit || 10,
+    page: req.query.page || 1
+  }
+  filters.limit = parseInt(filters.limit);
+  filters.page = parseInt(filters.page);
+  um.getEncuestasByUser(filters, (data, status) => {
+    res.status(status).send(data);
+  });
+}
+
 exports.register = (req, res) => {
   const user = {
     codigo: req.body.codigo,
@@ -33,7 +48,7 @@ exports.register = (req, res) => {
     email: req.body.email,
     genero: req.body.genero,
     id_perfil: req.body.id_perfil,
-    foto: req.body.foto,
+    foto: req.files && req.files.foto || '' ,
     investigador: {
       id_tipo_documento: req.body.id_tipo_doc,
       id_pais: req.body.id_pais,
@@ -43,6 +58,7 @@ exports.register = (req, res) => {
   if(user.id_perfil == 2){
     if (!user.foto || user.foto == '') res.status(400).send({ err: 'El investigador requiere de una foto' })
   }
+  
   user.nombres = user.nombres.toUpperCase();
   user.apellidos = user.apellidos.toUpperCase();
   user.genero = user.genero.toUpperCase();
@@ -51,9 +67,8 @@ exports.register = (req, res) => {
   util.cryptPassword(generatedPassword, (err, cryptedPassword) => {
     if(err) return res.status(500).send(err);
     user.contrasenia = cryptedPassword;
-    um.register(user, (err, status, user) => {
-      if(err) return res.status(status).send(err);
-      res.status(status).send(user);
+    um.register(user, (data, status) => {
+      return res.status(status).send(data);
     });
   });
 }

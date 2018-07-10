@@ -3,8 +3,8 @@ const Investigador = require('../schemas/Investigador');
 const { Op } = require('sequelize');
 const nodemailer = require('nodemailer');
 const sequelize = require('../database/db');
-
-
+const cloudinary = require('cloudinary');
+const Encuesta = require('../schemas/Encuesta');
 
 User.hasOne(Investigador, {
   foreignKey: 'id_usuario',
@@ -35,7 +35,7 @@ exports.getAll = (search, cb) => {
   User
     .findAll({
       where,
-      limit: parseInt(search.limit),
+      limit: search.limit,
       offset: search.limit * (search.page - 1),
       include: [{
         model: Investigador,
@@ -81,7 +81,32 @@ exports.get = (id,cb) => {
     .catch(err => cb(err, 500))
 }
 
+exports.getEncuestasByUser = (filters, cb) => {
+  Encuesta
+    .findAll({ 
+      where: {
+        id_investigador: filters.id
+      },
+      limit: filters.limit,
+      offset: filters.limit * (filters.page - 1)
+    })
+    .then((encuestasFound) => {
+      if(encuestasFound.length == 0) return cb({ msg: 'El usuario no tiene ninguna encuesta' }, 404);
+      return cb(encuestasFound, 200);
+    })
+    .catch(err => cb(err, 500));
+}
+
 exports.register = (user, cb) => {
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD,
+    folder: 'sistemaencuestas',
+    api_key: process.env.CLOUDINARY_KEY,
+    api_secret: process.env.CLOUDINARY_SECRET,
+    resource_type: 'image'
+  })
+  let userCreated = null;
+  
   const transporter = nodemailer.createTransport({
     service: 'SendGrid',
     auth: {
@@ -134,30 +159,32 @@ exports.register = (user, cb) => {
       }else{
         delete user['investigador']
       }
-      User
-        .create(user, options)
-        .then((userSaved) => {
-          if(userSaved.id_perfil == 2){
-            userSaved.dataValues.id_tipo_documento = userSaved.dataValues.investigador.id_tipo_documento;
-            userSaved.dataValues.id_pais = userSaved.dataValues.investigador.id_pais;
-            userSaved.dataValues.universidad = userSaved.dataValues.investigador.universidad;
-          }
-          delete userSaved.dataValues['investigador'];
-          return transporter.sendMail(mailOptions)
-            .then(() => {
-              cb(null, 200, userSaved);
-            })
-            .catch(err => {
-              userSaved
-                .destroy()
-                .then(() => cb(err, 500))
-                .catch((err) => cb(err, 500))
-            });
-        })
-        .catch(err => cb(err, 500));
+      
+      return cloudinary.v2.uploader
+        .upload_stream((err, res) => {
+          if(err) return cb(err,500);
+          user.foto = res.secure_url;
+          return sequelize.transaction((t) => {
+            options.transaction = t;
+            return User
+              .create(user, options)
+              .then((userSaved) => {
+                if(userSaved.id_perfil == 2){
+                  userSaved.dataValues.id_tipo_documento = userSaved.dataValues.investigador.id_tipo_documento;
+                  userSaved.dataValues.id_pais = userSaved.dataValues.investigador.id_pais;
+                  userSaved.dataValues.universidad = userSaved.dataValues.investigador.universidad;
+                }
+                delete userSaved.dataValues['investigador'];
+                userCreated = userSaved;
+                return transporter.sendMail(mailOptions)
+              })
+          })
+          .then(() => cb(userCreated, 201))
+          .catch((err) => cb(err, 500))
+      })
+      .end(user.foto.data)
     })
     .catch(err => cb(err, 500));
-  
 }
 
 exports.changePassword = (user, cb) => {

@@ -1,9 +1,10 @@
+const sequelize = require('../database/db');
 const Encuesta = require('../schemas/Encuesta');
 const Pregunta = require('../schemas/Pregunta');
 const PreguntaAlternativa = require('../schemas/Pregunta_alternativa');
 const Segmento = require('../schemas/Segmento');
 const Alternativa = require('../schemas/Alternativa');
-const sequelize = require('../database/db');
+const Respuesta = require('../schemas/Respuesta');
 
 Pregunta.belongsToMany(Alternativa, {
   through: {
@@ -24,55 +25,19 @@ Alternativa.belongsToMany(Pregunta, {
   as: 'alternativas'
 });
 
-exports.getAll = (cb) => {
-  let en = {};
+Pregunta.hasMany(Respuesta, {
+  foreignKey: 'id_pregunta',
+  as: 'respuestas'
+});
+
+exports.getAll = (filters, cb) => {
   Encuesta
     .findAll({
-      limit: 1,
-      include: [{
-        model: Segmento,
-        as: 'segmentos',
-        include: [{
-          model: Pregunta,
-          as: 'preguntas'
-        }]
-      }]
+      limit: filters.limit,
+      offset: filters.limit * (filters.page -1)
     })
     .then((encuestas) => {
-      en = encuestas;
-      return Promise.all(
-        en.map((e) => {
-          return Promise.all(
-            e.segmentos.map((s) => {
-              return Promise.all(
-                s.preguntas.map((p) => {
-                  p.dataValues.alternativas = [];
-                  return PreguntaAlternativa
-                    .findAll({
-                      where: { id_pregunta: p.id_pregunta }
-                    })
-                    .then((pas) => {
-                      return Promise.all(
-                        pas.map((pas) => {
-                          return Alternativa
-                            .findAll({ where: {
-                              id_alternativa: pas.id_alternativa
-                            }})
-                            .then((alternativas) => {
-                              p.dataValues.alternativas.push(alternativas[0]);
-                            });
-                        })
-                      )
-                    })
-                })
-            )
-            })
-          )
-        })
-      )
-    })
-    .then(() => {
-      cb(null, en);
+      cb(null, encuestas);
     })
     .catch(err => cb(err))
 }
@@ -123,6 +88,31 @@ exports.get = (id, cb) => {
       cb(null, en);
     })
     .catch(err => cb(err))
+}
+
+exports.getRespuestasByEncuesta = (id, cb) => {
+  Encuesta
+    .findOne({
+      where: { id_encuesta: id },
+      include: [{
+        model: Segmento,
+        as: 'segmentos',
+        include: [{
+          model: Pregunta,
+          as: 'preguntas',
+          include: [{
+            model: Respuesta,
+            as: 'respuestas',
+            include: [Alternativa]
+          }]
+        }]
+      }]
+    })
+    .then((encuestaFound) => {
+      if(!encuestaFound) return cb({ msg: 'No existe la encuesta' }, 404);
+      cb(encuestaFound, 200);
+    })
+    .catch((err) => cb(err, 500));
 }
 
 exports.insert = (data, cb) => {
