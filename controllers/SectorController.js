@@ -13,7 +13,7 @@ exports.insert = (req, res) => {
     nombre_sector: req.body.nombre_sector.toUpperCase(),
     descripcion_sector: req.body.descripcion_sector
   };
-  sm.insert(scetor, (err, sector) => {
+  sm.insert(sector, (err, sector) => {
     if(err) return res.status(500).send(err);
     res.send(sector);
   });

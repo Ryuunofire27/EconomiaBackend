@@ -387,6 +387,7 @@ Se elimina el tipo de documento seleccionado.
         {
           "msg": "Tipo de documento eliminado correctamente"
         }
+
 # Group Sectores
 
 ## Sector [/sectores/{id}]
@@ -427,4 +428,45 @@ Se elimina el sector seleccionado
     + Body
         {
           "msg": "Sector eliminado correctamente"
+        }
+
+# Group TipoEmpresas
+
+## Tipo_empresa [/tipoempresas/{id}]
+
++ Model
+    ```js
+    {
+      /*Llave primaria*/
+      "id_tipo_empresa": Number,
+      /*Atributos extras*/
+      "tipo_empresa": String
+    }
+    ```
+
+### Obtener todos los tipos de empresas [GET]
+
+Obtiene todos los tipos de empresas que existen.
+
++ Response 200 (application/json) 
+    [Tipo_empresa][]
+
+### Crear un nuevo tipo de empresa [POST]
+
+Crea un nuevo tipo de empresa
+
++ Response 201 (application/json)
+    [Tipo_empresa][]
+
+### Elimina un tipo de empresa [DELETE]
+
+Se elimina el tipo de empresa seleccionado
+
++ Parameters
+    + id: (Number)
+
++ Response 200 (application/json)
+    + Body
+        {
+          "msg": "Tipo de empresa eliminado correctamente"
         }
