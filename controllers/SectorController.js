@@ -8,7 +8,7 @@ exports.getAll = (req, res) => {
 };
 
 exports.insert = (req, res) => {
-  if (!req.body.nombre_sector || !req.body.descripcion_sector) return res.status(401).send({ err: 'Falta llenar campos'})
+  if (!req.body.nombre_sector) return res.status(401).send({ err: 'Falta llenar campos'})
   const sector = {
     nombre_sector: req.body.nombre_sector.toUpperCase(),
     descripcion_sector: req.body.descripcion_sector

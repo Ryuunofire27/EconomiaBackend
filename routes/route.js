@@ -7,6 +7,7 @@ const tr = require('./tipoDocumentoRoute');
 const sr = require('./sectorRoute');
 const ter = require('./tipoEmpresaRoute');
 const etr = require('./encuestadoRoute');
+const zr = require('./zonasRoute');
 
 route
   .use('/usuarios', ur)
@@ -17,5 +18,6 @@ route
   .use('/sectores',sr)
   .use('/tipoempresas',ter)
   .use('/encuestados',etr)
+  .use('/zonas', zr)
   
 module.exports = route;

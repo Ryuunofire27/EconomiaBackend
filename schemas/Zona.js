@@ -11,9 +11,6 @@ const Zona = sequelize.define('zona', {
   tableName: 'ZONAS'
 });
 
-// Zona.hasMany(Encuestado, {foreignKey: 'cod_zona'});
-// Encuestado.belongsTo(Zona, { foreignKey: 'cod_zona' });
-
 Zona.belongsTo(Pais, { foreignKey: 'id_pais' });
 
 module.exports = Zona;

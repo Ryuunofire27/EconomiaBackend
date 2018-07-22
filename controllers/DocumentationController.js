@@ -11,6 +11,6 @@ fs.watchFile(`${__dirname}/../readme.md`, () => {
 exports.getDocumentation = (req, res) => {
   fs.access(`${__dirname}/../views/index.html`, (err) => {
     if (err) res.status(500).send(err);
-    res.render('index.html');
+    res.sendFile(`index.html`);
   })
 }

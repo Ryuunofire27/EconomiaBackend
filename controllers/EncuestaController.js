@@ -21,8 +21,22 @@ exports.get = (req, res) => {
 
 exports.getRespuestasByEncuesta = (req, res) => {
   em.getRespuestasByEncuesta(req.params.id, (data, status) => {
-    res.status(status).send(data);
+    if(data.msg || data.err || data.error)  return res.status(status).send(data);
+    const preguntas = [];
+    data.dataValues.segmentos.map((d) => {
+      d.dataValues.preguntas.map((p) => {
+        preguntas.push(p);
+      })
+    });
+    res.status(status).send(preguntas)
   })
+}
+
+exports.insertRespuestasByEncuesta = (req, res) => {
+  const respuestas = req.body;
+  em.insertRespuestasByEncuesta(respuestas, (data, status) => {
+    res.status(status).send(data);
+  });
 }
 
 exports.insert = (req, res) => {
@@ -40,6 +54,7 @@ exports.insert = (req, res) => {
     res.status(status).send(data);
   });
 }
+
 
 exports.delete = (req, res) => {
   em.delete(req.params.id, (err) => {

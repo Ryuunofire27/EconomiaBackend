@@ -360,17 +360,65 @@ Obtiene un arreglo de Encuestas paginado.
 Obtiene la encuesta con el id
 
 + Parameters
-  + id: (Number) - el id del usuario
+  + id: (Number) - el id de la encuesta
 
 + Response 200 (application/json)
     [Encuesta][]
+
+### Obtener las respuestas de la encuesta [GET /encuestas/{id}/respuestas]
+
++ Parameters
+  + id: (Number) - el id de la encuesta
+
++ Response 200 (application/json)
+    [
+        {
+            "id_pregunta": Number,
+            "nmr_pregunta": Number,
+            "pregunta": String,
+            "id_segmento": Number,
+            "respuestas": [
+                {
+                    "id_encuestado": Number,
+                    "id_pregunta": Number,
+                    "id_alternativa": Number,
+                    "alternativa": {
+                        "id_alternativa": Number,
+                        "alternativa": String
+                    }
+                }
+            ]
+        }
+    ]
 
 ### Crear una nueva Encuesta [POST]
 
 Crea una nueva Encuesta
 
++ Request
+    [Encuesta][]
+
 + Response 201 (application/json)
     [Encuesta][]
+
+### Registrar respuestas de una Encuesta [POST /encuestas/{id}/respuestas]
+
+Registrar respuestas
+
++ Request
+    [
+        {
+            "id_encuestado": Number,
+            "id_pregunta": Number,
+            "id_alternativa": Number
+        }
+    ]
+
++ Response 201 (application/json)
+    {
+        "msg": "Insertado correctamente"
+    }
+
 
 ### Elimina una Encuesta [DELETE]
 

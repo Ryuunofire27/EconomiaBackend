@@ -12,7 +12,10 @@ exports.insert = (req, res) => {
   const encuestado = {
     ruc: req.body.ruc,
     razon_social: req.body.razon_social,
-    representante: req.body.representante
+    representante: req.body.representante,
+    cod_zona: req.body.cod_zona,
+    id_sector: req.body.id_sector,
+    id_tipo_empresa: req.body.id_tipo_empresa
   };
   etm.insert(encuestado, (err, encuestado) => {
     if(err) return res.status(500).send(err);

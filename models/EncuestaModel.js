@@ -128,6 +128,19 @@ exports.getRespuestasByEncuesta = (id, cb) => {
     .catch((err) => cb(err, 500));
 }
 
+exports.insertRespuestasByEncuesta = (respuestas, cb) => {
+  console.log(respuestas);
+  
+  sequelize.transaction((t) => {
+    return Respuesta
+      .bulkCreate(respuestas)
+  })
+  .then(() => {
+    cb({ msg: 'Se guardaron las respuestas exitosamente' }, 201);
+  })
+  .catch(err => cb(err, 500));
+};
+
 exports.insert = (data, cb) => {
   return sequelize.transaction((t) => {
     return Encuesta
