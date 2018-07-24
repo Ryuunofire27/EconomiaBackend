@@ -13,7 +13,7 @@ dotenv.load({ path: '.env' })
 
 app
   // Constantes 
-  .set('port', 8080)
+  .set('port', 8000)
   .set('app', app)
   
   // Middlewares

@@ -62,6 +62,7 @@ exports.register = (req, res) => {
   user.nombres = user.nombres.toUpperCase();
   user.apellidos = user.apellidos.toUpperCase();
   user.genero = user.genero.toUpperCase();
+  user.id_perfil = parseInt(user.id_perfil);
   const generatedPassword = util.generatePassword(16);
   user.contraseniaNoHashed = generatedPassword;
   util.cryptPassword(generatedPassword, (err, cryptedPassword) => {

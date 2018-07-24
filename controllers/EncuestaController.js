@@ -3,7 +3,8 @@ const em = require('../models/EncuestaModel');
 exports.getAll = (req, res) => {
   const filters = {
     limit: req.query.limit || 10,
-    page: req.query.page || 1
+    page: req.query.page || 1,
+    search: req.query.search
   }
   filters.limit = parseInt(filters.limit);
   filters.page = parseInt(filters.page);

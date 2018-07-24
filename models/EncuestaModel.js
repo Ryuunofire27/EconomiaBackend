@@ -5,6 +5,7 @@ const PreguntaAlternativa = require('../schemas/Pregunta_alternativa');
 const Segmento = require('../schemas/Segmento');
 const Alternativa = require('../schemas/Alternativa');
 const Respuesta = require('../schemas/Respuesta');
+const { Op } = require('sequelize');
 
 Pregunta.belongsToMany(Alternativa, {
   through: {
@@ -33,12 +34,14 @@ Pregunta.hasMany(Respuesta, {
 exports.getAll = (filters, cb) => {
   let count = 0;
   let pages = 0;
+  const where = filters.search ? { tema_encuesta: { [Op.like]: '%' + filters.search + '%'} } : {}
   Encuesta
-    .count()
+    .count({ where })
     .then((encuestasCount) => {
       count = encuestasCount;
       return Encuesta
         .findAll({
+          where,
           limit: filters.limit,
           offset: filters.limit * (filters.page -1)
         })
